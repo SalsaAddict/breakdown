@@ -1,0 +1,8 @@
+[
+  {
+    "outputFileName": "Scripts/breakdown/breakdown.min.js",
+    "inputFiles": [
+      "Scripts/breakdown/breakdown.js"
+    ]
+  }
+]
