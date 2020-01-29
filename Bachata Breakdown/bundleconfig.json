@@ -4,5 +4,11 @@
     "inputFiles": [
       "Scripts/breakdown/breakdown.js"
     ]
+  },
+  {
+    "outputFileName": "Scripts/tonejs/Tone.min.js",
+    "inputFiles": [
+      "Scripts/tonejs/Tone.js"
+    ]
   }
 ]

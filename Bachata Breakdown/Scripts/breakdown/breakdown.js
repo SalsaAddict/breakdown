@@ -2,7 +2,8 @@
 var Breakdown;
 (function (Breakdown) {
     var Instrument = /** @class */ (function () {
-        function Instrument(context, name) {
+        function Instrument(_context, name) {
+            this._context = _context;
             this.name = name;
             this.audio = document.createElement("audio");
             var s = document.createElement("source");
@@ -12,8 +13,8 @@ var Breakdown;
             this.audio.preload = "auto";
             this.audio.appendChild(s);
             document.body.appendChild(this.audio);
-            this.source = context.createMediaElementSource(this.audio);
-            this.gain = context.createGain();
+            this.source = _context.createMediaElementSource(this.audio);
+            this.gain = _context.createGain();
             this.gain.gain.value = this.volume = 1;
             this.source.connect(this.gain);
         }
@@ -32,10 +33,9 @@ var Breakdown;
             configurable: true
         });
         Instrument.prototype.mute = function () {
-            if (this.muted)
-                this.volume = this._previousVolume || 1;
-            else
-                this.volume = 0;
+            console.warn("mute", this.name);
+            var volume = this.muted ? this._previousVolume || 1 : 0;
+            this.gain.gain.linearRampToValueAtTime(volume, this._context.currentTime + 2.5);
         };
         return Instrument;
     }());
@@ -52,24 +52,8 @@ var Breakdown;
             this._addInstrument("guira");
             this._addInstrument("bass");
             var bongo = this.instruments[0];
-            bongo.audio.ontimeupdate = this.$scope.$apply;
+            //bongo.audio.ontimeupdate = this.$scope.$apply;
         }
-        Object.defineProperty(MainCtrl.prototype, "elapsed", {
-            get: function () {
-                var bongo = this.instruments[0];
-                return bongo.audio.currentTime;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(MainCtrl.prototype, "percentage", {
-            get: function () {
-                var bongo = this.instruments[0];
-                return bongo.audio.currentTime / bongo.audio.duration;
-            },
-            enumerable: true,
-            configurable: true
-        });
         MainCtrl.prototype._addInstrument = function (name) {
             var i = new Instrument(this.context, name);
             i.gain.connect(this.gain);
@@ -110,18 +94,70 @@ var Breakdown;
             enumerable: true,
             configurable: true
         });
-        MainCtrl.prototype.mute = function () {
-            if (this.muted)
-                this.volume = this._previousVolume || 1;
-            else
-                this.volume = 0;
-        };
+        MainCtrl.prototype.mute = function () { this.volume = this.muted ? this._previousVolume || 1 : 0; };
         MainCtrl.prototype.$postLink = function () { };
         MainCtrl.$inject = ["$scope"];
         return MainCtrl;
     }());
     Breakdown.MainCtrl = MainCtrl;
 })(Breakdown || (Breakdown = {}));
+var BBTone;
+(function (BBTone) {
+    var MainCtrl = /** @class */ (function () {
+        function MainCtrl($scope) {
+            var _this = this;
+            this.ready = false;
+            this.instruments = [
+                { name: "bongo" },
+                { name: "guira" },
+                { name: "bass" },
+                { name: "segunda", start: 2.1 },
+                { name: "requinto", start: 1.4, quiet: -15, normal: -5 }
+            ];
+            angular.forEach(this.instruments, function (i) {
+                _this[i.name] = new Tone.Player("audio/" + i.name + ".mp3").sync().start(i.start || 0).toMaster();
+                _this[i.name].volume.value = i.normal || 0;
+                i.level = "normal";
+            });
+            Tone.Buffer.on("load", function () {
+                _this.ready = true;
+                $scope.$apply();
+            });
+        }
+        MainCtrl.prototype.level = function (i, level) {
+            i.level = level;
+            switch (i.level) {
+                case "mute":
+                    this[i.name].mute = true;
+                    break;
+                case "quiet":
+                    this[i.name].mute = false;
+                    this[i.name].volume.value = i.quiet || -15;
+                    break;
+                case "normal":
+                    this[i.name].mute = false;
+                    this[i.name].volume.value = i.normal || 0;
+                    break;
+            }
+        };
+        MainCtrl.prototype.rewind = function () {
+            var restart = Tone.Transport.state === "started";
+            Tone.Transport.stop();
+            if (restart)
+                Tone.Transport.start(0);
+        };
+        MainCtrl.prototype.toggle = function () {
+            if (Tone.Transport.state === "started")
+                Tone.Transport.pause();
+            else
+                Tone.Transport.start();
+        };
+        MainCtrl.prototype.$postLink = function () { };
+        MainCtrl.$inject = ["$scope"];
+        return MainCtrl;
+    }());
+    BBTone.MainCtrl = MainCtrl;
+})(BBTone || (BBTone = {}));
 var breakdown = angular.module("breakdown", []);
-breakdown.controller("mainCtrl", Breakdown.MainCtrl);
+breakdown.controller("mainCtrl", BBTone.MainCtrl);
 //# sourceMappingURL=breakdown.js.map

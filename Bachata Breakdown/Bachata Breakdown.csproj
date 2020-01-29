@@ -70,6 +70,8 @@
     <Content Include="audio\bass.mp3" />
     <Content Include="audio\bongo.mp3" />
     <Content Include="audio\guira.mp3" />
+    <Content Include="audio\requinto.mp3" />
+    <Content Include="audio\segunda.mp3" />
     <Content Include="Content\bongo.png" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
@@ -77,6 +79,48 @@
     <Content Include="Content\bootstrap-reboot.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\cerulean\bootstrap.css" />
+    <Content Include="Content\bootswatch\cerulean\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\cosmo\bootstrap.css" />
+    <Content Include="Content\bootswatch\cosmo\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\cyborg\bootstrap.css" />
+    <Content Include="Content\bootswatch\cyborg\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\darkly\bootstrap.css" />
+    <Content Include="Content\bootswatch\darkly\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\flatly\bootstrap.css" />
+    <Content Include="Content\bootswatch\flatly\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\journal\bootstrap.css" />
+    <Content Include="Content\bootswatch\journal\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\litera\bootstrap.css" />
+    <Content Include="Content\bootswatch\litera\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\lumen\bootstrap.css" />
+    <Content Include="Content\bootswatch\lumen\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\lux\bootstrap.css" />
+    <Content Include="Content\bootswatch\lux\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\materia\bootstrap.css" />
+    <Content Include="Content\bootswatch\materia\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\minty\bootstrap.css" />
+    <Content Include="Content\bootswatch\minty\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\pulse\bootstrap.css" />
+    <Content Include="Content\bootswatch\pulse\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\sandstone\bootstrap.css" />
+    <Content Include="Content\bootswatch\sandstone\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\simplex\bootstrap.css" />
+    <Content Include="Content\bootswatch\simplex\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\sketchy\bootstrap.css" />
+    <Content Include="Content\bootswatch\sketchy\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\slate\bootstrap.css" />
+    <Content Include="Content\bootswatch\slate\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\solar\bootstrap.css" />
+    <Content Include="Content\bootswatch\solar\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\spacelab\bootstrap.css" />
+    <Content Include="Content\bootswatch\spacelab\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\superhero\bootstrap.css" />
+    <Content Include="Content\bootswatch\superhero\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\united\bootstrap.css" />
+    <Content Include="Content\bootswatch\united\bootstrap.min.css" />
+    <Content Include="Content\bootswatch\yeti\bootstrap.css" />
+    <Content Include="Content\bootswatch\yeti\bootstrap.min.css" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
     <Content Include="fonts\fontawesome-webfont.svg" />
@@ -122,6 +166,48 @@
     <Content Include="Scripts\esm\popper-utils.min.js.map" />
     <Content Include="Scripts\esm\popper-utils.js.map" />
     <None Include="bundleconfig.json" />
+    <Content Include="Content\bootswatch\yeti\_variables.scss" />
+    <Content Include="Content\bootswatch\yeti\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\united\_variables.scss" />
+    <Content Include="Content\bootswatch\united\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\superhero\_variables.scss" />
+    <Content Include="Content\bootswatch\superhero\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\spacelab\_variables.scss" />
+    <Content Include="Content\bootswatch\spacelab\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\solar\_variables.scss" />
+    <Content Include="Content\bootswatch\solar\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\slate\_variables.scss" />
+    <Content Include="Content\bootswatch\slate\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\sketchy\_variables.scss" />
+    <Content Include="Content\bootswatch\sketchy\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\simplex\_variables.scss" />
+    <Content Include="Content\bootswatch\simplex\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\sandstone\_variables.scss" />
+    <Content Include="Content\bootswatch\sandstone\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\pulse\_variables.scss" />
+    <Content Include="Content\bootswatch\pulse\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\minty\_variables.scss" />
+    <Content Include="Content\bootswatch\minty\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\materia\_variables.scss" />
+    <Content Include="Content\bootswatch\materia\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\lux\_variables.scss" />
+    <Content Include="Content\bootswatch\lux\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\lumen\_variables.scss" />
+    <Content Include="Content\bootswatch\lumen\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\litera\_variables.scss" />
+    <Content Include="Content\bootswatch\litera\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\journal\_variables.scss" />
+    <Content Include="Content\bootswatch\journal\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\flatly\_variables.scss" />
+    <Content Include="Content\bootswatch\flatly\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\darkly\_variables.scss" />
+    <Content Include="Content\bootswatch\darkly\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\cyborg\_variables.scss" />
+    <Content Include="Content\bootswatch\cyborg\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\cosmo\_variables.scss" />
+    <Content Include="Content\bootswatch\cosmo\_bootswatch.scss" />
+    <Content Include="Content\bootswatch\cerulean\_variables.scss" />
+    <Content Include="Content\bootswatch\cerulean\_bootswatch.scss" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
@@ -194,6 +280,10 @@
     <Content Include="Scripts\src\utils\setAttributes.js" />
     <Content Include="Scripts\src\utils\setStyles.js" />
     <Content Include="Scripts\src\utils\setupEventListeners.js" />
+    <Content Include="Scripts\tonejs\Tone.js" />
+    <Content Include="Scripts\tonejs\Tone.min.js">
+      <DependentUpon>Tone.js</DependentUpon>
+    </Content>
     <Content Include="Scripts\umd\popper-utils.js" />
     <Content Include="Scripts\umd\popper-utils.min.js" />
     <Content Include="Scripts\umd\popper.js" />
@@ -242,6 +332,7 @@
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
