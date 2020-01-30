@@ -10,43 +10,79 @@
 <body ng-controller="mainCtrl as ctrl">
     <div class="container">
         <br />
-        <div class="jumbotron text-center" ng-if="!ctrl.ready">
-            <h4>
-                <i class="fa fa-fw fa-spin fa-cog"></i>
-                <span>Loading instruments&hellip;</span>
-            </h4>
-        </div>
-        <div ng-if="ctrl.ready">
-            <div ng-repeat="i in ctrl.instruments">
-                <div class="form-group form-row">
-                    <span ng-bind="i.name" class="text-capitalize col-3"></span>
-                    <div class="col-9 btn-group btn-group-sm">
-                        <button type="button" class="btn" ng-class="{ 'btn-dark': i.level === 'mute', 'btn-outline-dark': i.level !== 'mute' }" ng-click="ctrl.level(i, 'mute')">
-                            <i class="fa fa-fw fa-volume-off"></i>
-                        </button>
-                        <button type="button" class="btn" ng-class="{ 'btn-dark': i.level === 'quiet', 'btn-outline-dark': i.level !== 'quiet' }" ng-click="ctrl.level(i, 'quiet')">
-                            <i class="fa fa-fw fa-volume-down"></i>
-                        </button>
-                        <button type="button" class="btn" ng-class="{ 'btn-dark': i.level === 'normal', 'btn-outline-dark': i.level !== 'normal' }" ng-click="ctrl.level(i, 'normal')">
-                            <i class="fa fa-fw fa-volume-up"></i>
-                        </button>
-                    </div>
+        <div class="card">
+            <div class="card-header">
+                <div class="text-center">
+                    <h6 class="h6">
+                        <span>Me Emborrarchare</span>
+                        <br />
+                        <small>Interactive Musicality Breakdown</small>
+                    </h6>
                 </div>
             </div>
-            <div class="btn-group">
-                <button type="button" class="btn btn-dark" ng-click="ctrl.rewind()" ng-disabled="!ctrl.ready">
-                    <i class="fa fa-fw fa-fast-backward"></i>
-                </button>
-                <button type="button" class="btn btn-dark" ng-click="ctrl.toggle()" ng-disabled="!ctrl.ready">
-                    <i class="fa fa-fw fa-play"></i>
-                </button>
+            <div class="card-body p-2">
+                <div class="jumbotron text-center" ng-if="!ctrl.ready">
+                    <h4>
+                        <i class="fa fa-fw fa-spin fa-cog"></i>
+                        <span>Loading instruments&hellip;</span>
+                    </h4>
+                </div>
+                <div ng-if="ctrl.ready">
+                    <div class="text-center text-nowrap">
+                        <div class="row">
+                            <div class="col-6">
+                                <small>Section</small>
+                                <br />
+                                <span class="h5" ng-bind="ctrl.section.title"></span>
+                            </div>
+                            <div class="col-6">
+                                <small>Rhythm</small>
+                                <br />
+                                <span class="h5" ng-bind="ctrl.section.rhythm"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <small>Phrasing</small>
+                            <br />
+                            <i class="fa fa-fw fa-square" ng-repeat="marker in ctrl.section.measureMarkers()" ng-class="{ 'text-danger': ctrl.measure === marker }"></i>
+                            <br />
+                            <i class="fa fa-fw fa-circle" ng-repeat="marker in ctrl.section.beatMarkers(ctrl.measure)" ng-class="{ 'text-danger': ctrl.beat === marker }"></i>
+                        </div>
+                    </div>
+                    <div ng-repeat="i in ctrl.instruments" class="p-2">
+                        <div class="row">
+                            <small ng-bind="i.name" class="text-capitalize col-6"></small>
+                            <div class="col-6 btn-group btn-group-sm">
+                                <button type="button" class="btn" ng-class="{ 'btn-dark': i.level === 'mute', 'btn-outline-dark': i.level !== 'mute' }" ng-click="ctrl.level(i, 'mute')">
+                                    <i class="fa fa-fw fa-volume-off"></i>
+                                </button>
+                                <button type="button" class="btn" ng-class="{ 'btn-dark': i.level === 'quiet', 'btn-outline-dark': i.level !== 'quiet' }" ng-click="ctrl.level(i, 'quiet')">
+                                    <i class="fa fa-fw fa-volume-down"></i>
+                                </button>
+                                <button type="button" class="btn" ng-class="{ 'btn-dark': i.level === 'normal', 'btn-outline-dark': i.level !== 'normal' }" ng-click="ctrl.level(i, 'normal')">
+                                    <i class="fa fa-fw fa-volume-up"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-dark" ng-click="ctrl.rewind()" ng-disabled="!ctrl.ready">
+                            <i class="fa fa-fw fa-fast-backward"></i>
+                        </button>
+                        <button type="button" class="btn btn-dark" ng-click="ctrl.toggle()" ng-disabled="!ctrl.ready">
+                            <i class="fa fa-fw fa-play"></i>
+                        </button>
+                    </div>
+                    <span ng-bind="ctrl.bar"></span>
+                    <span ng-bind="ctrl.beat"></span>
+                </div>
+                {{ctrl.section.measureMarkers()}}
             </div>
-            <div id="#beatCounter"></div>
         </div>
     </div>
     <script src="Scripts/angular.min.js"></script>
     <script src="Scripts/tonejs/Tone.min.js"></script>
+    <script src="Scripts/vuejs/vue.min.js"></script>
     <script src="Scripts/breakdown/breakdown.min.js"></script>
-
 </body>
 </html>
