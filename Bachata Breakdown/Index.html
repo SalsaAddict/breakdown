@@ -50,7 +50,12 @@
                         <div class="p-2">
                             <small>Phrasing</small>
                             <br />
-                            <i class="fa fa-fw fa-square" ng-repeat="marker in ctrl.section.measureMarkers()" ng-class="{ 'text-info': ctrl.measure === marker }"></i>
+                            <span ng-repeat="marker in ctrl.section.measureMarkers()" ng-class="{ 'text-info': ctrl.measure === marker }">
+                                <ng-switch on="$last && ctrl.section.bars % 2 === 1">
+                                    <i class="fa fa-fw fa-square" ng-switch-when="false"></i>
+                                    <i class="fa fa-fw fa-warning" ng-switch-when="true"></i>
+                                </ng-switch>
+                            </span>
                             <br />
                             <i class="fa fa-fw fa-circle" ng-repeat="marker in ctrl.section.beatMarkers(ctrl.measure)" ng-class="{ 'text-info': ctrl.beat === marker }"></i>
                         </div>
