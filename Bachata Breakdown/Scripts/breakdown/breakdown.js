@@ -1,9 +1,10 @@
 /// <reference path="../typings/angularjs/angular.d.ts" />
-var BB;
-(function (BB) {
+var Breakdown;
+(function (Breakdown) {
     const eight = [1, 2, 3, 4, 5, 6, 7, 8];
     class Section {
-        constructor(title, rhythm, start, bars) {
+        constructor(id, title, rhythm, start, bars) {
+            this.id = id;
             this.title = title;
             this.rhythm = rhythm;
             this.start = start;
@@ -19,11 +20,21 @@ var BB;
             this._count = 0;
         }
         get count() { return this._count; }
+        get end() { return this._count === 0 ? 1 : this[this._count - 1].start + (this[this._count - 1].bars * 4); }
         add(title, rhythm, bars) {
-            let start = this._count === 0 ? 1 : this[this._count - 1].bars * 4 + this[this._count - 1].start;
-            this[this._count] = new Section(title, rhythm, start, bars);
+            this[this._count] = new Section(this._count, title, rhythm, this.end, bars);
             this._count++;
             return this;
+        }
+        previousBeatIndex(section) {
+            if (section.id === 0)
+                return;
+            return this[section.id - 1].start;
+        }
+        nextBeatIndex(section) {
+            if (section.id === this._count - 1)
+                return;
+            return this[section.id + 1].start;
         }
         sectionAtBeatIndex(beatIndex) {
             for (var i = this._count - 1; i > 0; i--) {
@@ -43,6 +54,28 @@ var BB;
             this.player = new Tone.Player("audio/" + name + ".mp3").sync().start(startTime).toMaster();
             this.player.volume.value = normalVolume;
         }
+        mute() {
+            this.player.mute = true;
+            this.level = "mute";
+        }
+        normal() {
+            this.player.mute = false;
+            this.player.volume.value = this.normalVolume;
+            this.level = "normal";
+        }
+        loud() {
+            this.player.mute = false;
+            this.player.volume.value = this.loudVolume;
+            this.level = "loud";
+        }
+        buttonClass(level) {
+            let cls = {};
+            if (this.level === level)
+                cls["btn-info"] = true;
+            else
+                cls["btn-outline-info"] = true;
+            return cls;
+        }
     }
     class MainCtrl {
         constructor($scope) {
@@ -55,7 +88,7 @@ var BB;
             Tone.Transport.timeSignature = 4;
             Tone.Transport.bpm.value = 124;
             this.sections
-                .add("Count-In", "Count-In", 1)
+                .add("Start", "Count-In", 1)
                 .add("Intro", "Majao", 8)
                 .add("Verse 1", "Derecho", 8)
                 .add("Chorus", "Majao", 8)
@@ -63,9 +96,13 @@ var BB;
                 .add("Verse 2", "Derecho", 8)
                 .add("Chorus", "Majao", 8)
                 .add("Bridge", "Urban/Majao", 4)
+                .add("Chorus", "Majao", 8)
                 .add("Mambo", "Majao", 8)
                 .add("Breakdown", "Urban", 9)
-                .add("Chorus", "Majao", 8);
+                .add("Chorus", "Majao", 8)
+                .add("Bridge", "Urban/Majao", 4)
+                .add("Chorus", "Majao", 8)
+                .add("End", "End", 2);
             this.instruments.push(new Instrument("bongo"));
             this.instruments.push(new Instrument("guira"));
             this.instruments.push(new Instrument("bass"));
@@ -77,25 +114,19 @@ var BB;
                 Tone.Transport.scheduleRepeat(() => {
                     let segments = Tone.Transport.position.split(":");
                     this.beatIndex = (parseInt(segments[0]) * 4) + parseInt(segments[1]);
+                    if (this.beatIndex >= this.sections.end)
+                        if (Tone.Transport.state === "started") {
+                            Tone.Transport.stop();
+                            this.playing = false;
+                            this.gotoBeatIndex(0);
+                        }
                     $scope.$apply();
                 }, "4n", "0:1");
             });
         }
-        get measure() {
-            if (!this.section)
-                return;
-            return Math.floor((this.beatIndex - this.section.start) / 8) + 1;
-        }
-        get beat() {
-            if (!this.section)
-                return;
-            return ((this.beatIndex - this.section.start) % this.section.beatsInMeasure(this.measure)) + 1;
-        }
-        get section() {
-            if (!this.beatIndex)
-                return;
-            return this.sections.sectionAtBeatIndex(this.beatIndex);
-        }
+        get section() { return this.sections.sectionAtBeatIndex(this.beatIndex); }
+        get measure() { return (Math.floor((this.beatIndex - this.section.start) / 8) + 1) || 1; }
+        get beat() { return (((this.beatIndex - this.section.start) % this.section.beatsInMeasure(this.measure)) + 1) || 1; }
         toggle() {
             if (Tone.Transport.state === "started") {
                 Tone.Transport.pause();
@@ -106,110 +137,18 @@ var BB;
                 this.playing = true;
             }
         }
-        $postLink() { }
-    }
-    MainCtrl.$inject = ["$scope"];
-    BB.MainCtrl = MainCtrl;
-})(BB || (BB = {}));
-var Breakdown;
-(function (Breakdown) {
-    class MainCtrl {
-        constructor($scope) {
-            this.blocks = [1, 2, 3, 4, 5, 6, 7, 8];
-            this.ready = false;
-            this.instruments = [
-                { name: "bongo" },
-                { name: "guira" },
-                { name: "bass" },
-                { name: "segunda", start: 2.1 },
-                { name: "requinto", start: 1.4, quiet: -15, normal: -5 }
-            ];
-            this.phrases = [
-                { start: 1, length: 32, title: "Intro", rhythm: "Majao" },
-                { start: 33, length: 32, title: "Verse 1", rhythm: "Derecho" },
-                { start: 65, length: 32, title: "Chorus", rhythm: "Majao" },
-                { start: 97, length: 32, title: "Bridge", rhythm: "Derecho" },
-                { start: 129, length: 32, title: "Verse 2", rhythm: "Derecho" },
-                { start: 161, length: 32, title: "Chorus", rhythm: "Majao" },
-            ];
-            Tone.Transport.timeSignature = 4;
-            Tone.Transport.bpm.value = 124;
-            angular.forEach(this.instruments, (i) => {
-                this[i.name] = new Tone.Player("audio/" + i.name + ".mp3").sync().start(i.start || 0).toMaster();
-                this[i.name].volume.value = i.normal || 0;
-                i.level = "normal";
-            });
-            Tone.Buffer.on("load", () => {
-                this.ready = true;
-                $scope.$apply();
-                Tone.Transport.scheduleRepeat(() => {
-                    let segments = Tone.Transport.position.split(":");
-                    this.counter = ((parseInt(segments[0]) - 1) * 4) + parseInt(segments[1]);
-                    if (this.counter < 1)
-                        this.phrase = null;
-                    else if (this.counter <= 32)
-                        this.phrase = this.phrases[0];
-                    else if (this.counter <= 64)
-                        this.phrase = this.phrases[1];
-                    else if (this.counter <= 96)
-                        this.phrase = this.phrases[2];
-                    else if (this.counter <= 128)
-                        this.phrase = this.phrases[3];
-                    else if (this.counter <= 160)
-                        this.phrase = this.phrases[4];
-                    else if (this.counter <= 192)
-                        this.phrase = this.phrases[5];
-                    else
-                        this.phrase = null;
-                    $scope.$apply();
-                }, "4n", "0:1");
-            });
+        gotoBeatIndex(beatIndex) {
+            let position = beatIndex === 0 ? "0:0:0" : Math.floor(beatIndex / 4) + ":1:0";
+            Tone.Transport.position = position;
+            this.beatIndex = beatIndex;
         }
-        get beat() { return ((this.counter - 1) % 4) + 1; }
-        get step() { return ((this.counter - 1) % 8) + 1; }
-        get measures() {
-            if (!this.phrase)
-                return;
-            return this.phrase.length / 8;
-        }
-        get measure() {
-            if (!this.phrase)
-                return;
-            return (Math.floor((this.counter - 1) / 8) % this.measures) + 1;
-        }
-        level(i, level) {
-            i.level = level;
-            switch (i.level) {
-                case "mute":
-                    this[i.name].mute = true;
-                    break;
-                case "quiet":
-                    this[i.name].mute = false;
-                    this[i.name].volume.value = i.quiet || -15;
-                    break;
-                case "normal":
-                    this[i.name].mute = false;
-                    this[i.name].volume.value = i.normal || 0;
-                    break;
-            }
-        }
-        rewind() {
-            let restart = Tone.Transport.state === "started";
-            Tone.Transport.stop();
-            if (restart)
-                Tone.Transport.start(0);
-        }
-        toggle() {
-            if (Tone.Transport.state === "started")
-                Tone.Transport.pause();
-            else
-                Tone.Transport.start();
-        }
+        back() { this.gotoBeatIndex(this.measure > 1 ? this.section.start : this.sections.previousBeatIndex(this.section) || 0); }
+        next() { this.gotoBeatIndex(this.sections.nextBeatIndex(this.section) || 0); }
         $postLink() { }
     }
     MainCtrl.$inject = ["$scope"];
     Breakdown.MainCtrl = MainCtrl;
 })(Breakdown || (Breakdown = {}));
 var breakdown = angular.module("breakdown", []);
-breakdown.controller("mainCtrl", BB.MainCtrl);
+breakdown.controller("mainCtrl", Breakdown.MainCtrl);
 //# sourceMappingURL=breakdown.js.map

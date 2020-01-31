@@ -2,10 +2,11 @@
 
 declare var Tone, Vue;
 
-namespace BB {
+namespace Breakdown {
     const eight: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
     class Section {
         constructor(
+            public readonly id: number,
             public readonly title: string,
             public readonly rhythm: string,
             public readonly start: number,
@@ -21,11 +22,19 @@ namespace BB {
         [section: number]: Section;
         private _count: number = 0;
         public get count(): number { return this._count; }
+        public get end(): number { return this._count === 0 ? 1 : this[this._count - 1].start + (this[this._count - 1].bars * 4); }
         public add(title: string, rhythm: string, bars: number): this {
-            let start: number = this._count === 0 ? 1 : this[this._count - 1].bars * 4 + this[this._count - 1].start;
-            this[this._count] = new Section(title, rhythm, start, bars);
+            this[this._count] = new Section(this._count, title, rhythm, this.end, bars);
             this._count++;
             return this;
+        }
+        public previousBeatIndex(section: Section): number {
+            if (section.id === 0) return;
+            return this[section.id - 1].start;
+        }
+        public nextBeatIndex(section: Section): number {
+            if (section.id === this._count - 1) return;
+            return this[section.id + 1].start;
         }
         sectionAtBeatIndex(beatIndex: number): Section {
             for (var i: number = this._count - 1; i > 0; i--) {
@@ -46,6 +55,26 @@ namespace BB {
         }
         public readonly player: any;
         public level: Level = "normal"
+        public mute(): void {
+            this.player.mute = true;
+            this.level = "mute";
+        }
+        public normal(): void {
+            this.player.mute = false;
+            this.player.volume.value = this.normalVolume;
+            this.level = "normal";
+        }
+        public loud(): void {
+            this.player.mute = false;
+            this.player.volume.value = this.loudVolume;
+            this.level = "loud";
+        }
+        public buttonClass(level: Level): any {
+            let cls: any = {};
+            if (this.level === level) cls["btn-info"] = true;
+            else cls["btn-outline-info"] = true;
+            return cls;
+        }
     }
     export class MainCtrl implements ng.IController {
         static $inject: string[] = ["$scope"];
@@ -53,7 +82,7 @@ namespace BB {
             Tone.Transport.timeSignature = 4;
             Tone.Transport.bpm.value = 124;
             this.sections
-                .add("Count-In", "Count-In", 1)
+                .add("Start", "Count-In", 1)
                 .add("Intro", "Majao", 8)
                 .add("Verse 1", "Derecho", 8)
                 .add("Chorus", "Majao", 8)
@@ -61,9 +90,13 @@ namespace BB {
                 .add("Verse 2", "Derecho", 8)
                 .add("Chorus", "Majao", 8)
                 .add("Bridge", "Urban/Majao", 4)
+                .add("Chorus", "Majao", 8)
                 .add("Mambo", "Majao", 8)
                 .add("Breakdown", "Urban", 9)
-                .add("Chorus", "Majao", 8);
+                .add("Chorus", "Majao", 8)
+                .add("Bridge", "Urban/Majao", 4)
+                .add("Chorus", "Majao", 8)
+                .add("End", "End", 2);
             this.instruments.push(new Instrument("bongo"));
             this.instruments.push(new Instrument("guira"));
             this.instruments.push(new Instrument("bass"));
@@ -75,27 +108,23 @@ namespace BB {
                 Tone.Transport.scheduleRepeat((): void => {
                     let segments: string = Tone.Transport.position.split(":");
                     this.beatIndex = (parseInt(segments[0]) * 4) + parseInt(segments[1]);
+                    if (this.beatIndex >= this.sections.end)
+                        if (Tone.Transport.state === "started") {
+                            Tone.Transport.stop();
+                            this.playing = false;
+                            this.gotoBeatIndex(0);
+                        }
                     $scope.$apply();
                 }, "4n", "0:1");
             });
         }
         public ready: boolean = false;
         public beatIndex: number = 0;
-        public get measure(): number {
-            if (!this.section) return;
-            return Math.floor((this.beatIndex - this.section.start) / 8) + 1;
-        }
-        public get beat(): number {
-            if (!this.section) return;
-            return ((this.beatIndex - this.section.start) % this.section.beatsInMeasure(this.measure)) + 1;
-        }
         public sections: Sections = new Sections();
-        public get section(): Section {
-            if (!this.beatIndex) return;
-            return this.sections.sectionAtBeatIndex(this.beatIndex);
-        }
+        public get section(): Section { return this.sections.sectionAtBeatIndex(this.beatIndex); }
+        public get measure(): number { return (Math.floor((this.beatIndex - this.section.start) / 8) + 1) || 1; }
+        public get beat(): number { return (((this.beatIndex - this.section.start) % this.section.beatsInMeasure(this.measure)) + 1) || 1; }
         public instruments: Instrument[] = [];
-
         public playing: boolean = false;
         public toggle(): void {
             if (Tone.Transport.state === "started") {
@@ -106,106 +135,18 @@ namespace BB {
                 this.playing = true;
             }
         }
-
-
-        public $postLink(): void { }
-    }
-}
-
-
-namespace Breakdown {
-    export type Level = "mute" | "quiet" | "normal";
-    export interface Instrument { name: string; start?: number; quiet?: number; normal?: number; level?: Level; }
-    export interface Phrasex { start: number; length: number; title: string; rhythm: string; }
-
-
-
-
-
-
-    export class MainCtrl implements ng.IController {
-        static $inject: string[] = ["$scope"];
-        constructor($scope: ng.IScope) {
-            Tone.Transport.timeSignature = 4;
-            Tone.Transport.bpm.value = 124;
-            angular.forEach(this.instruments, (i: Instrument): void => {
-                this[i.name] = new Tone.Player("audio/" + i.name + ".mp3").sync().start(i.start || 0).toMaster();
-                this[i.name].volume.value = i.normal || 0;
-                i.level = "normal";
-            });
-            Tone.Buffer.on("load", () => {
-                this.ready = true;
-                $scope.$apply();
-                Tone.Transport.scheduleRepeat((): void => {
-                    let segments: string = Tone.Transport.position.split(":");
-                    this.counter = ((parseInt(segments[0]) - 1) * 4) + parseInt(segments[1]);
-                    if (this.counter < 1) this.phrase = null;
-                    else if (this.counter <= 32) this.phrase = this.phrases[0];
-                    else if (this.counter <= 64) this.phrase = this.phrases[1];
-                    else if (this.counter <= 96) this.phrase = this.phrases[2];
-                    else if (this.counter <= 128) this.phrase = this.phrases[3];
-                    else if (this.counter <= 160) this.phrase = this.phrases[4];
-                    else if (this.counter <= 192) this.phrase = this.phrases[5];
-                    else this.phrase = null;
-                    $scope.$apply();
-                }, "4n", "0:1");
-            });
+        private gotoBeatIndex(beatIndex: number): void {
+            let position: string = beatIndex === 0 ? "0:0:0" : Math.floor(beatIndex / 4) + ":1:0";
+            Tone.Transport.position = position;
+            this.beatIndex = beatIndex;
         }
-        public counter: number;
-        public get beat(): number { return ((this.counter - 1) % 4) + 1; }
-        public get step(): number { return ((this.counter - 1) % 8) + 1; }
-        public get measures(): number {
-            if (!this.phrase) return;
-            return this.phrase.length / 8;
-        }
-        public get measure(): number {
-            if (!this.phrase) return;
-            return (Math.floor((this.counter - 1) / 8) % this.measures) + 1;
-        }
-
-        public readonly blocks: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
-
-        public ready: boolean = false;
-        public readonly instruments: Instrument[] = [
-            { name: "bongo" },
-            { name: "guira" },
-            { name: "bass" },
-            { name: "segunda", start: 2.1 },
-            { name: "requinto", start: 1.4, quiet: -15, normal: -5 }
-        ];
-        public level(i: Instrument, level: Level): void {
-            i.level = level;
-            switch (i.level) {
-                case "mute": this[i.name].mute = true; break;
-                case "quiet": this[i.name].mute = false; this[i.name].volume.value = i.quiet || - 15; break;
-                case "normal": this[i.name].mute = false; this[i.name].volume.value = i.normal || 0; break;
-            }
-        }
-        public rewind(): void {
-            let restart: boolean = Tone.Transport.state === "started";
-            Tone.Transport.stop();
-            if (restart) Tone.Transport.start(0);
-        }
-        public toggle(): void {
-            if (Tone.Transport.state === "started")
-                Tone.Transport.pause();
-            else
-                Tone.Transport.start();
-        }
-        public phrase: Phrasex;
-        public phrases: Phrasex[] = [
-            { start: 1, length: 32, title: "Intro", rhythm: "Majao" },
-            { start: 33, length: 32, title: "Verse 1", rhythm: "Derecho" },
-            { start: 65, length: 32, title: "Chorus", rhythm: "Majao" },
-            { start: 97, length: 32, title: "Bridge", rhythm: "Derecho" },
-            { start: 129, length: 32, title: "Verse 2", rhythm: "Derecho" },
-            { start: 161, length: 32, title: "Chorus", rhythm: "Majao" },
-        ];
+        public back(): void { this.gotoBeatIndex(this.measure > 1 ? this.section.start : this.sections.previousBeatIndex(this.section) || 0); }
+        public next(): void { this.gotoBeatIndex(this.sections.nextBeatIndex(this.section) || 0); }
         public $postLink(): void { }
     }
 }
 
 var breakdown: angular.IModule = angular.module("breakdown", []);
-breakdown.controller("mainCtrl", BB.MainCtrl);
+breakdown.controller("mainCtrl", Breakdown.MainCtrl);
 
 

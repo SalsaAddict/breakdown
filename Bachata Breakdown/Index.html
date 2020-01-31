@@ -3,86 +3,135 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <meta charset="utf-8" />
-    <title></title>
-    <link rel="stylesheet" type="text/css" href="Content/bootstrap.min.css" />
+    <title>Interactive Bachata Musicality Breakdown</title>
+    <link rel="stylesheet" type="text/css" href="Content/bootswatch/darkly/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="Content/font-awesome.min.css" />
+    <meta property="og:title" content="Interactive Bachata Musicality Breakdown" />
+    <meta property="og:image" content="http://emusicality.co.uk/Content/emborrachareBreakdown.jpg" />
+    <meta property="og:description" content="Interactive Bachata Musicality Breakdown" />
 </head>
 <body ng-controller="mainCtrl as ctrl">
     <div class="container">
         <br />
-        <div class="card">
+        <div class="card" ng-if="!ctrl.about">
             <div class="card-header">
                 <div class="text-center">
                     <h6 class="h6">
-                        <span>Me Emborrarchare</span>
+                        <span>Me Emborrachare</span>
                         <br />
-                        <small>Interactive Musicality Breakdown</small>
+                        <small>Interactive Bachata Musicality Breakdown</small>
                     </h6>
                 </div>
             </div>
-            <div class="card-body p-2">
-                <div class="jumbotron text-center" ng-if="!ctrl.ready">
-                    <h4>
-                        <i class="fa fa-fw fa-spin fa-cog"></i>
-                        <span>Loading instruments&hellip;</span>
-                    </h4>
-                </div>
+            <div class="card-body p-0 text-center" ng-if="!ctrl.ready">
+                <img class="img-fluid" src="Content/emborrachareBreakdown.jpg" />
+            </div>
+            <div class="card-footer text-center" ng-if="!ctrl.ready">
+                <h5 class="h5">
+                    <i class="fa fa-fw fa-spin fa-cog"></i>
+                    <span>Loading instruments&hellip;</span>
+                </h5>
+            </div>
+            <div class="card-body p-2" ng-if="ctrl.ready">
                 <div ng-if="ctrl.ready">
                     <div class="text-center text-nowrap">
                         <div class="row">
                             <div class="col-6">
                                 <small>Section</small>
                                 <br />
-                                <span class="h5" ng-bind="ctrl.section.title"></span>
+                                <span class="h5 text-info" ng-bind="ctrl.section.title"></span>
                             </div>
                             <div class="col-6">
                                 <small>Rhythm</small>
                                 <br />
-                                <span class="h5" ng-bind="ctrl.section.rhythm"></span>
+                                <span class="h5 text-info" ng-bind="ctrl.section.rhythm"></span>
                             </div>
                         </div>
-                        <div>
+                        <div class="p-2">
                             <small>Phrasing</small>
                             <br />
-                            <i class="fa fa-fw fa-square" ng-repeat="marker in ctrl.section.measureMarkers()" ng-class="{ 'text-danger': ctrl.measure === marker }"></i>
+                            <i class="fa fa-fw fa-square" ng-repeat="marker in ctrl.section.measureMarkers()" ng-class="{ 'text-info': ctrl.measure === marker }"></i>
                             <br />
-                            <i class="fa fa-fw fa-circle" ng-repeat="marker in ctrl.section.beatMarkers(ctrl.measure)" ng-class="{ 'text-danger': ctrl.beat === marker }"></i>
+                            <i class="fa fa-fw fa-circle" ng-repeat="marker in ctrl.section.beatMarkers(ctrl.measure)" ng-class="{ 'text-info': ctrl.beat === marker }"></i>
                         </div>
                     </div>
-                    <div ng-repeat="i in ctrl.instruments" class="p-2">
-                        <div class="row">
-                            <small ng-bind="i.name" class="text-capitalize col-6"></small>
-                            <div class="col-6 btn-group btn-group-sm">
-                                <button type="button" class="btn" ng-class="{ 'btn-dark': i.level === 'mute', 'btn-outline-dark': i.level !== 'mute' }" ng-click="ctrl.level(i, 'mute')">
-                                    <i class="fa fa-fw fa-volume-off"></i>
-                                </button>
-                                <button type="button" class="btn" ng-class="{ 'btn-dark': i.level === 'quiet', 'btn-outline-dark': i.level !== 'quiet' }" ng-click="ctrl.level(i, 'quiet')">
-                                    <i class="fa fa-fw fa-volume-down"></i>
-                                </button>
-                                <button type="button" class="btn" ng-class="{ 'btn-dark': i.level === 'normal', 'btn-outline-dark': i.level !== 'normal' }" ng-click="ctrl.level(i, 'normal')">
-                                    <i class="fa fa-fw fa-volume-up"></i>
-                                </button>
+                    <ul class="list-group">
+                        <li ng-repeat="i in ctrl.instruments" class="list-group-item p-2">
+                            <span ng-bind="i.name" class="text-capitalize"></span>
+                            <div class="pull-right">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn" ng-class="i.buttonClass('mute')" ng-click="i.mute()">
+                                        <i class="fa fa-fw fa-volume-off"></i>
+                                    </button>
+                                    <button type="button" class="btn" ng-class="i.buttonClass('normal')" ng-click="i.normal()">
+                                        <i class="fa fa-fw fa-volume-down"></i>
+                                    </button>
+                                    <button type="button" class="btn" ng-class="i.buttonClass('loud')" ng-click="i.loud()">
+                                        <i class="fa fa-fw fa-volume-up"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-dark" ng-click="ctrl.rewind()" ng-disabled="!ctrl.ready">
-                            <i class="fa fa-fw fa-fast-backward"></i>
-                        </button>
-                        <button type="button" class="btn btn-dark" ng-click="ctrl.toggle()" ng-disabled="!ctrl.ready">
-                            <i class="fa fa-fw fa-play"></i>
-                        </button>
-                    </div>
-                    <span ng-bind="ctrl.bar"></span>
-                    <span ng-bind="ctrl.beat"></span>
+                        </li>
+                    </ul>
                 </div>
-                {{ctrl.section.measureMarkers()}}
+            </div>
+            <div class="card-footer text-center" ng-if="ctrl.ready">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-dark" ng-click="ctrl.gotoBeatIndex(0)">
+                        <i class="fa fa-fw fa-fast-backward"></i>
+                    </button>
+                    <button type="button" class="btn btn-dark" ng-click="ctrl.back()">
+                        <i class="fa fa-fw fa-backward"></i>
+                    </button>
+                    <button type="button" class="btn btn-dark" ng-click="ctrl.toggle()" ng-switch="ctrl.playing">
+                        <i class="fa fa-fw fa-play" ng-switch-when="false"></i>
+                        <i class="fa fa-fw fa-pause" ng-switch-when="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-dark" ng-click="ctrl.next()">
+                        <i class="fa fa-fw fa-forward"></i>
+                    </button>
+                </div>
+                <button type="button" class="btn btn-dark" ng-click="ctrl.about = true">
+                    <i class="fa fa-fw fa-info-circle"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card" ng-if="ctrl.about">
+            <div class="card-header">
+                <div class="text-center">
+                    <h6 class="h6">
+                        <span>Me Emborrachare</span>
+                        <br />
+                        <small>Interactive Bachata Musicality Breakdown</small>
+                    </h6>
+                </div>
+            </div>
+            <div class="card-body">
+                <p>
+                    <span>This is a tool, created by</span>
+                    <a href="https://www.facebook.com/salsaaddict">DJ Pierre</a>
+                    <span>, to help Bachateros learn about the instruments, rhythms and phrasing of Bachata music.</span>
+                </p>
+                <p>
+                    <span>All of the instrumental tracks were created by</span>
+                    <a href="https://www.grupoextraofficial.com/index.html" target="_blank">Grupo Extra</a>
+                    <span>in association with</span>
+                    <a href="https://islandtouchdance.com/ELTiguere/index.php" target="_blank">DJ Tiguere</a>
+                    <span>.</span>
+                </p>
+                <p>If you found it useful, please share!</p>
+                <p></p>
+            </div>
+            <div class="card-footer text-center">
+                <button type="button" class="btn btn-dark" ng-click="ctrl.about = false">
+                    <i class="fa fa-fw fa-chevron-circle-left"></i>
+                    <span>Back</span>
+                </button>
             </div>
         </div>
     </div>
     <script src="Scripts/angular.min.js"></script>
     <script src="Scripts/tonejs/Tone.min.js"></script>
-    <script src="Scripts/vuejs/vue.min.js"></script>
     <script src="Scripts/breakdown/breakdown.min.js"></script>
 </body>
 </html>

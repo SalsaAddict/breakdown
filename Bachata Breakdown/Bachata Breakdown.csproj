@@ -121,6 +121,7 @@
     <Content Include="Content\bootswatch\united\bootstrap.min.css" />
     <Content Include="Content\bootswatch\yeti\bootstrap.css" />
     <Content Include="Content\bootswatch\yeti\bootstrap.min.css" />
+    <Content Include="Content\emborrachareBreakdown.jpg" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
     <Content Include="fonts\fontawesome-webfont.svg" />
@@ -288,7 +289,6 @@
     <Content Include="Scripts\umd\popper-utils.min.js" />
     <Content Include="Scripts\umd\popper.js" />
     <Content Include="Scripts\umd\popper.min.js" />
-    <Content Include="Scripts\vuejs\vue.min.js" />
     <Content Include="Web.config" />
     <Content Include="Scripts\tsconfig.json" />
   </ItemGroup>
